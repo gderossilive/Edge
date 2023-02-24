@@ -37,16 +37,16 @@ $aideuserConfig = @"
     "AksEdgeProduct": "$productName",
     "AksEdgeProductUrl": "",
     "Azure": {
-        "SubscriptionName": $SubscriptionName,
-        "SubscriptionId": $SubscriptionId,
-        "TenantId": $TenantId,
-        "ResourceGroupName": $ResourceGroupName,
-        "ServicePrincipalName": $ServicePrincipalName,
-        "Location": $Location,
-        "CustomLocationOID":$CustomLocationOID,
+        "SubscriptionName": "$SubscriptionName",
+        "SubscriptionId": "$SubscriptionId",
+        "TenantId": "$TenantId",
+        "ResourceGroupName": "$ResourceGroupName",
+        "ServicePrincipalName": "$ServicePrincipalName",
+        "Location": "$Location",
+        "CustomLocationOID":"$CustomLocationOID",
         "Auth":{
-            "ServicePrincipalId":$ServicePrincipalId,
-            "Password":$Password
+            "ServicePrincipalId":"$ServicePrincipalId",
+            "Password":"$Password"
         }
     },
     "AksEdgeConfigFile": "aksedge-config.json"
