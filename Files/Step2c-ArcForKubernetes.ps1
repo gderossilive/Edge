@@ -1,5 +1,5 @@
 <#
-  Sample script to deploy AksEdge via Arc Enabled Servers - Custom Script Extenstion
+  Sample script to deploy AksEdge via Arc Enabled Servers - Custom Script Extenstion  
 #>
 param(
     [Switch] $UseK8s,
