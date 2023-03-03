@@ -26,6 +26,10 @@ Start-Transcript -Path $transcriptFile
 
 Set-ExecutionPolicy Bypass -Scope Process -Force
 
+# Installe the NuGet package needed to install the Az packages
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+
+# Install the HyperV role needed to install the AKS Edge package
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
 
 $endtime = Get-Date
