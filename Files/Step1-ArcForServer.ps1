@@ -47,3 +47,5 @@ Invoke-WebRequest -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile AzureC
     --subscription-id "$env:SUBSCRIPTION_ID" `
     --cloud "$env:CLOUD" `
     --correlation-id "$env:CORRELATION_ID"
+
+Restart-Computer -Force
