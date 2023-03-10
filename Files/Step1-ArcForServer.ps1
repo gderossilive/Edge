@@ -8,6 +8,7 @@ param(
     [string] $AAPLS,
     [string] $Proxy
 )
+
 # Enable an Azure VM to be ARC enabled
 Set-Service WindowsAzureGuestAgent -StartupType Disabled -Verbose
 Stop-Service WindowsAzureGuestAgent -Force -Verbose
@@ -45,7 +46,7 @@ if ($Proxy) {
 #}
 
 if ($AAPLS) {
-    $env:PRIVATELINKSCOPE = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.HybridCompute/privateLinkScopes/$AAPLS"
+    $env:PRIVATELINKSCOPE = $AAPLS
     & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" config set proxy.url $Proxy
     & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" config set proxy.bypass "Arc"
     & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" connect `
@@ -56,7 +57,7 @@ if ($AAPLS) {
         --location "$env:LOCATION" `
         --subscription-id "$env:SUBSCRIPTION_ID" `
         --cloud "$env:CLOUD" `
-        --private-link-scope $env:PRIVATELINKSCOPE `
+        --private-link-scope "$env:PRIVATELINKSCOPE" `
         --correlation-id "$env:CORRELATION_ID"
 } else {
     & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" connect `
