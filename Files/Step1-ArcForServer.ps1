@@ -4,7 +4,9 @@ param(
     [string] $ResourceGroupName,
     [string] $Location,
     [string] $ServicePrincipalId,
-    [string] $Password
+    [string] $Password,
+    [string] $AAPLS,
+    [string] $Proxy
 )
 # Enable an Azure VM to be ARC enabled
 Set-Service WindowsAzureGuestAgent -StartupType Disabled -Verbose
@@ -24,7 +26,11 @@ $env:CORRELATION_ID = "e0abc3e6-4247-4774-abc7-a6c7fc02de59";
 $env:CLOUD = "AzureCloud";
 
 # Download the package
-Invoke-WebRequest -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile AzureConnectedMachineAgent.msi 
+if ($Proxy) {
+    Invoke-WebRequest -proxy $Proxy -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile AzureConnectedMachineAgent.msi
+} else {
+    Invoke-WebRequest -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile AzureConnectedMachineAgent.msi 
+}
 #Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 30 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -Proxy $proxy
 #Invoke-WebRequest -Uri "https://aka.ms/azcmagent-windows" -TimeoutSec 30 -OutFile "$env:TEMP\install_windows_azcmagent.ps1" -Proxy $proxy
 
@@ -38,12 +44,28 @@ Invoke-WebRequest -Uri https://aka.ms/AzureConnectedMachineAgent -OutFile AzureC
 #    throw "Installation failed: $message See installationlog.txt for additional details."
 #}
 
-& "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" connect `
-    --service-principal-id "$servicePrincipalClientId" `
-    --service-principal-secret "$servicePrincipalSecret" `
-    --resource-group "$env:RESOURCE_GROUP" `
-    --tenant-id "$env:TENANT_ID" `
-    --location "$env:LOCATION" `
-    --subscription-id "$env:SUBSCRIPTION_ID" `
-    --cloud "$env:CLOUD" `
-    --correlation-id "$env:CORRELATION_ID"
+if ($AAPLS) {
+    $env:PRIVATELINKSCOPE = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.HybridCompute/privateLinkScopes/$AAPLS"
+    & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" config set proxy.url $Proxy
+    & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" config set proxy.bypass "Arc"
+    & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" connect `
+        --service-principal-id "$servicePrincipalClientId" `
+        --service-principal-secret "$servicePrincipalSecret" `
+        --resource-group "$env:RESOURCE_GROUP" `
+        --tenant-id "$env:TENANT_ID" `
+        --location "$env:LOCATION" `
+        --subscription-id "$env:SUBSCRIPTION_ID" `
+        --cloud "$env:CLOUD" `
+        --private-link-scope $env:PRIVATELINKSCOPE `
+        --correlation-id "$env:CORRELATION_ID"
+} else {
+    & "$env:ProgramW6432\AzureConnectedMachineAgent\azcmagent.exe" connect `
+        --service-principal-id "$servicePrincipalClientId" `
+        --service-principal-secret "$servicePrincipalSecret" `
+        --resource-group "$env:RESOURCE_GROUP" `
+        --tenant-id "$env:TENANT_ID" `
+        --location "$env:LOCATION" `
+        --subscription-id "$env:SUBSCRIPTION_ID" `
+        --cloud "$env:CLOUD" `
+        --correlation-id "$env:CORRELATION_ID"
+}
